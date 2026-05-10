@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JP Entrenador — Programa Iniciantes</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--black:#080808;--dark:#111;--border:#252525;--accent:#C8F135;--adim:rgba(200,241,53,.1);--text:#efefef;--muted:#777;--white:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{background:rgba(8,8,8,.98);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:18px;height:18px;}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--white);}
+.logo-name em{color:var(--accent);font-style:normal;}
+.badge{background:var(--adim);border:1px solid var(--accent);color:var(--accent);padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+
+/* HERO */
+.hero{padding:60px 28px 48px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'JP';position:absolute;left:50%;transform:translateX(-50%);top:-20px;font-family:'Bebas Neue',sans-serif;font-size:260px;color:rgba(200,241,53,.03);letter-spacing:-8px;line-height:1;pointer-events:none;white-space:nowrap;}
+.hero-sup{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.hero-h{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:3px;color:var(--white);line-height:1;margin-bottom:16px;}
+.hero-sub{font-size:15px;color:var(--muted);max-width:420px;margin:0 auto 32px;line-height:1.6;}
+.hero-pills{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+.hpill{display:flex;align-items:center;gap:6px;background:var(--dark);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--muted);}
+.hpill-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;flex-shrink:0;}
+
+/* MESES */
+.meses{padding:16px 28px 60px;max-width:860px;margin:0 auto;width:100%;}
+.meses-title{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:20px;}
+
+.mes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+.mes-card{
+  background:var(--dark);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  transition:border-color .2s, transform .2s;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+}
+.mes-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+
+.mes-card-top{
+  padding:28px 24px 20px;
+  position:relative;
+  overflow:hidden;
+  flex:1;
+}
+.mes-card-top::after{
+  position:absolute;right:-8px;bottom:-16px;
+  font-family:'Bebas Neue',sans-serif;font-size:90px;
+  color:rgba(200,241,53,.05);letter-spacing:-2px;line-height:1;
+  pointer-events:none;
+}
+.mes-card:nth-child(1) .mes-card-top::after{content:'1';}
+.mes-card:nth-child(2) .mes-card-top::after{content:'2';}
+.mes-card:nth-child(3) .mes-card-top::after{content:'3';}
+
+.mes-num{
+  font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--accent);margin-bottom:6px;
+}
+.mes-name{
+  font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;
+  color:var(--white);line-height:1;margin-bottom:12px;
+}
+.mes-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:16px;}
+
+.mes-tags{display:flex;flex-direction:column;gap:5px;}
+.mes-tag{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.mes-tag-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+.mes-tag-dot.green{background:var(--accent);}
+.mes-tag-dot.blue{background:#7dd3fc;}
+.mes-tag-dot.orange{background:#fb923c;}
+
+.mes-card-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(200,241,53,.07);border-top:1px solid var(--border);
+  padding:14px 24px;
+  font-size:12px;font-weight:700;color:var(--accent);
+  letter-spacing:.3px;
+  transition:background .18s;
+}
+.mes-card:hover .mes-card-btn{background:var(--accent);color:var(--black);}
+.mes-card-btn svg{width:14px;height:14px;transition:transform .18s;}
+.mes-card:hover .mes-card-btn svg{transform:translateX(3px);}
+
+/* PROGRESION */
+.progresion{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  padding:0 28px 48px;max-width:600px;margin:0 auto;width:100%;
+}
+.prog-step{
+  flex:1;text-align:center;padding:12px 8px;
+  background:var(--dark);border:1px solid var(--border);
+  border-radius:8px;
+}
+.prog-step:not(:last-child){margin-right:-1px;border-radius:8px 0 0 8px;}
+.prog-step:last-child{border-radius:0 8px 8px 0;}
+.prog-step:not(:first-child):not(:last-child){border-radius:0;}
+.prog-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);line-height:1;}
+.prog-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+
+/* FOOTER */
+footer{margin-top:auto;border-top:1px solid var(--border);padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-brand{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);}
+.footer-brand em{color:var(--accent);font-style:normal;}
+.footer-note{font-size:11px;color:#444;}
+
+@media(max-width:640px){
+  .mes-grid{grid-template-columns:1fr;}
+  .hero-h{font-size:38px;}
+  .topbar{padding:0 16px;}
+  .meses{padding:12px 16px 40px;}
+  .hero{padding:40px 16px 32px;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#080808" stroke-width="2.8" stroke-linecap="round"><path d="M6 4v16M18 4v16M3 8h18M3 16h18"/></svg>
+    </div>
+    <div class="logo-name"><em>JP</em> ENTRENADOR</div>
+  </div>
+  <span class="badge">Programa Iniciantes</span>
+</header>
+
+<div class="hero">
+  <div class="hero-sup">Bienvenido a tu programa</div>
+  <div class="hero-h">Full Body<br>Iniciantes</div>
+  <div class="hero-sub">3 meses de entrenamiento progresivo con videos de corrección incluidos. Seleccioná tu mes y comenzá.</div>
+  <div class="hero-pills">
+    <div class="hpill"><span class="hpill-dot"></span>3 días por semana</div>
+    <div class="hpill"><span class="hpill-dot"></span>Videos con correcciones</div>
+    <div class="hpill"><span class="hpill-dot"></span>Progresión de carga automática</div>
+    <div class="hpill"><span class="hpill-dot"></span>Core al inicio de cada sesión</div>
+  </div>
+</div>
+
+<div class="meses">
+  <div class="meses-title">Seleccioná tu mes</div>
+  <div class="mes-grid">
+
+    <a href="jp-mes1-final.html" class="mes-card">
+      <div class="mes-card-top">
+        <div class="mes-num">Mes 1</div>
+        <div class="mes-name">Fundamentos</div>
+        <div class="mes-desc">Aprendés los patrones de movimiento básicos con cargas moderadas y técnica perfecta.</div>
+        <div class="mes-tags">
+          <div class="mes-tag"><span class="mes-tag-dot green"></span>Progresión 6 → 8 → 10 reps</div>
+          <div class="mes-tag"><span class="mes-tag-dot blue"></span>Core isométrico (30")</div>
+          <div class="mes-tag"><span class="mes-tag-dot green"></span>Sentadilla · Remo · Press plano</div>
+        </div>
+      </div>
+      <div class="mes-card-btn">
+        Ir al Mes 1
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+    <a href="jp-mes2-final.html" class="mes-card">
+      <div class="mes-card-top">
+        <div class="mes-num">Mes 2</div>
+        <div class="mes-name">Desarrollo</div>
+        <div class="mes-desc">Nuevos ejercicios y mayor complejidad. El core pasa a ser dinámico para mayor desafío.</div>
+        <div class="mes-tags">
+          <div class="mes-tag"><span class="mes-tag-dot green"></span>Progresión 6 → 8 → 10 reps</div>
+          <div class="mes-tag"><span class="mes-tag-dot blue"></span>Core dinámico (10-15 reps)</div>
+          <div class="mes-tag"><span class="mes-tag-dot green"></span>Búlgara · Press militar · Serrucho</div>
+        </div>
+      </div>
+      <div class="mes-card-btn">
+        Ir al Mes 2
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+    <a href="jp-mes3-final.html" class="mes-card">
+      <div class="mes-card-top">
+        <div class="mes-num">Mes 3</div>
+        <div class="mes-name">Consolidación</div>
+        <div class="mes-desc">Ejercicios de mayor complejidad y core con carga real. El nivel más exigente del programa.</div>
+        <div class="mes-tags">
+          <div class="mes-tag"><span class="mes-tag-dot green"></span>Progresión 6 → 8 → 10 reps</div>
+          <div class="mes-tag"><span class="mes-tag-dot blue"></span>Core con carga · Caminata del granjero</div>
+          <div class="mes-tag"><span class="mes-tag-dot orange"></span>Hip thrust · Dominadas · Despegue</div>
+        </div>
+      </div>
+      <div class="mes-card-btn">
+        Ir al Mes 3
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<div class="progresion">
+  <div class="prog-step"><div class="prog-num">6</div><div class="prog-label">Semana 1</div></div>
+  <div class="prog-step"><div class="prog-num">8</div><div class="prog-label">Semana 2</div></div>
+  <div class="prog-step"><div class="prog-num">10</div><div class="prog-label">Semana 3</div></div>
+  <div class="prog-step" style="border-color:rgba(200,241,53,.3);background:rgba(200,241,53,.05)"><div class="prog-num">⬆</div><div class="prog-label" style="color:var(--accent)">Semana 4</div></div>
+</div>
+
+<footer>
+  <div class="footer-brand"><em>JP</em> ENTRENADOR</div>
+  <div class="footer-note">Programa Full Body Iniciantes · 3 meses</div>
+</footer>
+
+</body>
+</html>
