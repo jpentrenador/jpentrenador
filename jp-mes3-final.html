@@ -84,14 +84,15 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .core-tbl .tbl{border-color:rgba(125,211,252,.15);}
 .core-tbl .tbl thead tr{background:#0f1a1f;}
 .core-tbl .tbl th{color:rgba(125,211,252,.4);}
-@media(max-width:580px){
-  .tbl th:nth-child(3),.tbl td:nth-child(3){display:none;}
-  .content{padding:12px 12px 36px;}
-  .topbar{padding:0 14px;}
+@media(max-width:768px){
+  :root{--gutter:16px;}
+  .hero{padding-left:var(--gutter);padding-right:var(--gutter);}
+  .week-nav{padding-left:var(--gutter);padding-right:var(--gutter);}
+  .infobar{padding-left:var(--gutter);padding-right:var(--gutter);}
+  .content{padding:12px var(--gutter) 40px;}
+  .topbar{padding:0 var(--gutter);}
   .badge{display:none;}
-  .hero{padding-left:20px;}
-  .week-nav{padding-left:20px;}
-  .infobar{padding-left:20px;}
+  .tbl th:nth-child(3),.tbl td:nth-child(3){display:none;}
 }
 </style>
 </head>
