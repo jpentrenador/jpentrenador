@@ -8,7 +8,8 @@
 <style>
 :root{--black:#080808;--dark:#111;--border:#252525;--accent:#C8F135;--adim:rgba(200,241,53,.1);--text:#efefef;--muted:#777;--white:#fff;--blue:#7dd3fc;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
+html{overflow-x:hidden;}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;overflow-x:hidden;}
 .topbar{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;gap:12px;}
 .logo{display:flex;align-items:center;gap:9px;}
 .logo-mark{width:32px;height:32px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;}
@@ -63,7 +64,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .sec::before,.sec::after{content:'';flex:1;height:1px;background:var(--border);}
 /* SUPERSERIE */
 .ss-wrap{border:1px solid rgba(200,241,53,.2);border-radius:10px;overflow:hidden;margin-bottom:14px;}
-.ss-header{background:rgba(200,241,53,.05);border-bottom:1px solid rgba(200,241,53,.12);padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,241,53,.5);display:flex;align-items:center;gap:6px;}
+.ss-header{background:rgba(200,241,53,.05);border-bottom:1px solid rgba(200,241,53,.12);padding:6px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,241,53,.5);display:flex;align-items:center;gap:6px;position:sticky;left:0;width:100%;box-sizing:border-box;}
 .ss-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;}
 /* PLAIN TABLE */
 .tbl-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;}
@@ -104,8 +105,22 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .vbtn:hover{background:var(--accent);color:var(--black);}
 .vbtn svg{width:9px;height:9px;}
 .no-v{font-size:10px;color:#333;}
-@media(max-width:580px){
+.wbtn.locked{opacity:.3;cursor:not-allowed;pointer-events:none;}
+.wbtn.done{border-color:rgba(200,241,53,.2);color:rgba(200,241,53,.4);background:transparent;}
+
+.day-status-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.day-complete-btn{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .18s;letter-spacing:.5px;}
+.day-complete-btn:hover{border-color:var(--accent);color:var(--accent);}
+.day-complete-btn.done{background:rgba(200,241,53,.08);border-color:rgba(200,241,53,.3);color:var(--accent);cursor:default;}
+.day-block.completed{opacity:.55;}
+.day-block.completed .day-num{background:#333;color:#666;}
+.day-block.locked{opacity:.35;pointer-events:none;filter:grayscale(1);}
+.day-block.current .day-num{box-shadow:0 0 0 3px rgba(200,241,53,.35);}
+.current-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(200,241,53,.12);border:1px solid rgba(200,241,53,.35);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.8px;}
+
   .tbl th:nth-child(3),.tbl td:nth-child(3){display:none;}
+  .tbl-wrap, .ss-wrap, .core-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tbl{min-width:480px;}
   .content{padding:12px 12px 36px;}
   .topbar{padding:0 14px;}
 }
@@ -123,14 +138,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
   <div class="topbar-right">
     <span class="badge">Mes 1</span>
     <span class="badge badge-h">♂ Hombres</span>
-    <span class="save-ok" id="saveOk">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-      Guardado
-    </span>
-    <button class="save-btn" onclick="saveAll()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      Guardar
-    </button>
   </div>
 </header>
 
@@ -291,9 +298,49 @@ function updateAutoKg(di){
 }
 
 // ══════════════════════════════════════════
-// HELPERS
+// PROGRESO POR DÍA
 // ══════════════════════════════════════════
-function sw(w,btn){cw=w;document.querySelectorAll('.wbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');render();}
+// S.progress = { "w1d0": true, "w1d1": true, ... }
+function isDayDone(w, d){ return !!(S.progress && S.progress[`w${w}d${d}`]); }
+
+function getCurrentDay(w){
+  for(let d=0;d<3;d++){ if(!isDayDone(w,d)) return d; }
+  return 3; // todos completos
+}
+
+function markDayDone(w, d){
+  if(!S.progress) S.progress = {};
+  S.progress[`w${w}d${d}`] = true;
+  persist();
+  // Si completó los 3 días de la semana, avanzar a la siguiente
+  if(isWeekDone(w) && w < 4) cw = w + 1;
+  renderWeekNav();
+  render();
+}
+
+function isWeekDone(w){ return [0,1,2].every(d=>isDayDone(w,d)); }
+function getCurrentWeek(){
+  for(let w=1;w<=4;w++){ if(!isWeekDone(w)) return w; }
+  return 4;
+}
+function renderWeekNav(){
+  const curW = getCurrentWeek();
+  document.querySelectorAll('.wbtn').forEach((btn,i)=>{
+    const w = i+1;
+    btn.classList.remove('on','done','locked');
+    if(w < curW) btn.classList.add('done');
+    else if(w === curW) btn.classList.add('on');
+    else btn.classList.add('locked');
+  });
+}
+function sw(w,btn){
+  const curW = getCurrentWeek();
+  if(w > curW) return; // bloqueada
+  cw=w;
+  document.querySelectorAll('.wbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  render();
+}
 function kkg(w,d,k){return `${w}|${d}|${k}|kg`;}
 function kfb(w,d,k){return `${w}|${d}|${k}|fb`;}
 function getBestRef(w,d,k){
@@ -447,7 +494,7 @@ function compRows(di){
       <td>—</td>
       <td>${cargaCell(cw,di,`comp${ei}`)}</td>
       <td><span class="rest">60"</span></td>
-      <td></td>
+      <td><input class="fb" type="text" placeholder="Cómo te fue..." data-k="${fb}" value="${S[fb]||''}" oninput="onFb(this)"></td>
       <td>${vbtn(ex.v)}</td>
     </tr>`;
   }).join('');
@@ -467,13 +514,36 @@ function render(){
   c.innerHTML=`<div class="week-chip">Semana <strong>${cw}</strong> &nbsp;·&nbsp; ${prog.sets}×${prog.reps} · ${Math.round(prog.pct*100)}% en el ejercicio principal</div>${banner}`;
 
   DAYS.forEach((day,di)=>{
+    const done = isDayDone(cw, di);
+    const currentDay = getCurrentDay(cw);
+    const isCurrent = di === currentDay;
+    const isLocked = di > currentDay;
+
+    let stateClass = '';
+    if(done) stateClass = 'completed';
+    else if(isCurrent) stateClass = 'current';
+    else if(isLocked) stateClass = 'locked';
+
+    let statusBar = '';
+    if(done){
+      statusBar = `<div class="day-status-bar">
+        <span class="current-tag">✓ Completado</span>
+      </div>`;
+    } else if(isCurrent){
+      statusBar = `<div class="day-status-bar">
+        <span class="current-tag">● Entrenás hoy</span>
+        <button class="day-complete-btn" onclick="markDayDone(${cw},${di})">✓ Marcar como completado</button>
+      </div>`;
+    }
+
     const b=document.createElement('div');
-    b.className='day-block';
+    b.className=`day-block ${stateClass}`;
     b.innerHTML=`
       <div class="day-head">
         <div class="day-num">${di+1}</div>
         <div><div class="day-label">${day.t}</div><div class="day-sub">${day.sub}</div></div>
       </div>
+      ${statusBar}
 
       <div class="sec" style="margin-bottom:7px;"><span style="color:var(--blue);">Core — activación</span></div>
       <div class="core-wrap" style="margin-bottom:14px;">
@@ -524,8 +594,9 @@ function render(){
 
 function onFb(inp){S[inp.dataset.k]=inp.value;persist();}
 function persist(){try{localStorage.setItem('jp_h_m1',JSON.stringify(S));}catch(e){}}
-function saveAll(){persist();const ok=document.getElementById('saveOk');ok.style.display='flex';setTimeout(()=>ok.style.display='none',2500);}
 
+cw = getCurrentWeek();
+renderWeekNav();
 render();
 </script>
 </body>
