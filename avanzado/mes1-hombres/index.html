@@ -108,6 +108,20 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .wbtn.locked{opacity:.3;cursor:not-allowed;pointer-events:none;}
 .wbtn.done{border-color:rgba(200,241,53,.2);color:rgba(200,241,53,.4);background:transparent;}
 
+/* BANNER HOY */
+.today-banner{margin:12px auto;max-width:820px;padding:0 16px;box-sizing:border-box;}
+.today-card{background:linear-gradient(135deg,rgba(200,241,53,.12),rgba(200,241,53,.04));border:2px solid rgba(200,241,53,.5);border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;}
+.today-card-left{display:flex;flex-direction:column;gap:4px;}
+.today-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(200,241,53,.6);text-transform:uppercase;}
+.today-day{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--accent);line-height:1;}
+.today-sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.today-arrow{font-size:28px;color:var(--accent);}
+
+/* DÍAS COLAPSABLES */
+.day-body{transition:all .2s;}
+.day-block.collapsed .day-body{display:none;}
+.day-collapse-hint{font-size:10px;color:var(--muted);letter-spacing:1px;text-align:center;padding:4px 0;opacity:.6;}
+
 .day-status-bar{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
 .current-tag{display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(200,241,53,.12);border:1px solid rgba(200,241,53,.35);color:var(--accent);padding:10px 16px;border-radius:10px;font-size:13px;font-weight:800;letter-spacing:.8px;width:100%;box-sizing:border-box;}
 
@@ -306,6 +320,17 @@ function isDayDone(w, d){ return !!(S.progress && S.progress[`w${w}d${d}`]); }
 function getCurrentDay(w){
   for(let d=0;d<3;d++){ if(!isDayDone(w,d)) return d; }
   return 3; // todos completos
+}
+
+function toggleDay(id){
+  const block = document.getElementById(id);
+  if(!block) return;
+  const body = block.querySelector('.day-body');
+  const arrow = block.querySelector('.day-head div:last-child');
+  if(!body) return;
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? '' : 'none';
+  if(arrow) arrow.textContent = isHidden ? '⌄' : '›';
 }
 
 function celebrate(){
@@ -554,9 +579,36 @@ function render(){
 
   c.innerHTML=`<div class="week-chip">Semana <strong>${cw}</strong> &nbsp;·&nbsp; ${prog.sets}×${prog.reps} · ${Math.round(prog.pct*100)}% en el ejercicio principal</div>${banner}`;
 
+  // Banner "HOY TE TOCA"
+  const currentDay = getCurrentDay(cw);
+  const allDone = currentDay === 3;
+  const bannerDiv = document.createElement('div');
+  bannerDiv.className = 'today-banner';
+  if(!allDone){
+    const todayData = DAYS[currentDay];
+    bannerDiv.innerHTML = `
+      <div class="today-card" onclick="document.getElementById('day-block-${cw}-${currentDay}').scrollIntoView({behavior:'smooth',block:'start'})">
+        <div class="today-card-left">
+          <div class="today-label">⚡ Hoy te toca entrenar</div>
+          <div class="today-day">${todayData.t}</div>
+          <div class="today-sub">${todayData.sub}</div>
+        </div>
+        <div class="today-arrow">↓</div>
+      </div>`;
+  } else {
+    bannerDiv.innerHTML = `
+      <div class="today-card" style="border-color:rgba(200,241,53,.2);background:rgba(200,241,53,.04);">
+        <div class="today-card-left">
+          <div class="today-label">✓ Semana completada</div>
+          <div class="today-day" style="font-size:20px;">¡Excelente trabajo!</div>
+        </div>
+        <div class="today-arrow">🏆</div>
+      </div>`;
+  }
+  c.appendChild(bannerDiv);
+
   DAYS.forEach((day,di)=>{
     const done = isDayDone(cw, di);
-    const currentDay = getCurrentDay(cw);
     const isCurrent = di === currentDay;
     const isLocked = di > currentDay;
 
@@ -582,12 +634,16 @@ function render(){
 
     const b=document.createElement('div');
     b.className=`day-block ${stateClass}`;
+    b.id=`day-block-${cw}-${di}`;
+    const isCollapsed = done || isLocked;
     b.innerHTML=`
-      <div class="day-head">
+      <div class="day-head" onclick="toggleDay('day-block-${cw}-${di}')">
         <div class="day-num">${di+1}</div>
-        <div><div class="day-label">${day.t}</div><div class="day-sub">${day.sub}</div></div>
+        <div style="flex:1"><div class="day-label">${day.t}</div><div class="day-sub">${day.sub}</div></div>
+        <div style="color:var(--muted);font-size:18px;">${isCollapsed ? '›' : '⌄'}</div>
       </div>
       ${statusBar}
+      <div class="day-body" ${isCollapsed ? 'style="display:none"' : ''}>
 
       <div class="sec" style="margin-bottom:7px;"><span style="color:var(--blue);">Core — activación</span></div>
       <div class="core-wrap" style="margin-bottom:14px;">
@@ -619,6 +675,7 @@ function render(){
       <div class="tbl-wrap">
         <table class="tbl"><thead><tr>${TH}</tr></thead>
         <tbody>${compRows(di)}</tbody></table>
+      </div>
       </div>
     `;
     c.appendChild(b);
