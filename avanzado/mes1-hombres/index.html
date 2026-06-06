@@ -180,7 +180,11 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
     </div>
     <div class="ref-item">
       <label>Press plano (Día 3)</label>
-      <input class="ref-input" type="number" placeholder="kg" id="ref_d2_a" oninput="onRef(2)">
+      <input class="ref-input" type="number" placeholder="kg" id="ref_d2_a" oninput="onRefSide(2,'a',this.value)">
+    </div>
+    <div class="ref-item">
+      <label>Remo Pendlay (Día 3)</label>
+      <input class="ref-input" type="number" placeholder="kg" id="ref_d2_b" oninput="onRefSide(2,'b',this.value)">
     </div>
   </div>
   <div class="ref-hint">
@@ -276,8 +280,18 @@ function onRef(di){
   REFS[di] = kg85;
   S[`ref_d${di}`] = kg85;
   persist();
-  // Actualizar displays de cargas automáticas en pantalla
   updateAutoKg(di);
+}
+
+function onRefSide(di, side, val){
+  const refKey = `ref_d${di}_${side}`;
+  S[refKey] = parseFloat(val)||0;
+  persist();
+  document.querySelectorAll(`.auto-kg[data-di="${di}"][data-side="${side}"]`).forEach(el=>{
+    const w = parseInt(el.dataset.w);
+    const kg = calcKg(parseFloat(val)||0, PROG[w].pct);
+    el.textContent = kg ? kg+' kg' : '—';
+  });
 }
 
 function calcKg(kg85, pct){
@@ -356,36 +370,41 @@ function vbtn(url){
 // ══════════════════════════════════════════
 // CARGA CELL — principal con % automático
 // ══════════════════════════════════════════
-function principalCell(w, di){
+function principalCell(w, di, side='a'){
   const prog = PROG[w];
+  const refKey = `ref_d${di}_${side}`;
   if(w===1){
-    // S1: input editable — es la referencia
-    const val = S[`ref_d${di}`]||'';
+    const val = S[refKey]||'';
     return `<div style="display:flex;flex-direction:column;gap:3px;">
       <input class="kg-in" type="number" placeholder="kg (85%)"
-        id="ref_d${di}${di===2?'_a':''}_inline"
+        id="${refKey}_inline"
         value="${val}"
-        oninput="syncRef(${di}, this.value)"
+        oninput="syncRef(${di}, '${side}', this.value)"
         style="border-color:rgba(200,241,53,.4);">
       <span style="font-size:9px;color:rgba(200,241,53,.5);text-align:center;">tu 85% → RIR 1-2</span>
     </div>`;
   }
-  const kg85 = REFS[di]||parseFloat(S[`ref_d${di}`])||0;
+  const kg85 = parseFloat(S[refKey])||0;
   const kg = calcKg(kg85, prog.pct);
   return `<div class="kg-auto-box">
-    <div class="kg-auto auto-kg" data-di="${di}" data-w="${w}">${kg?kg+' kg':'—'}</div>
+    <div class="kg-auto auto-kg" data-di="${di}" data-side="${side}" data-w="${w}">${kg?kg+' kg':'—'}</div>
     <div class="kg-auto-label">${Math.round(prog.pct*100)}%</div>
   </div>`;
 }
 
-function syncRef(di, val){
-  REFS[di] = parseFloat(val)||0;
-  S[`ref_d${di}`] = REFS[di];
+function syncRef(di, side, val){
+  const refKey = `ref_d${di}_${side}`;
+  S[refKey] = parseFloat(val)||0;
   // Sync with ref-box input
-  const refInp = document.getElementById(`ref_d${di}${di===2?'_a':''}`);
+  const refInp = document.getElementById(refKey);
   if(refInp) refInp.value = val;
   persist();
-  updateAutoKg(di);
+  // Actualizar celdas automáticas de semanas 2-4
+  document.querySelectorAll(`.auto-kg[data-di="${di}"][data-side="${side}"]`).forEach(el=>{
+    const w = parseInt(el.dataset.w);
+    const kg = calcKg(parseFloat(val)||0, PROG[w].pct);
+    el.textContent = kg ? kg+' kg' : '—';
+  });
 }
 
 // CARGA CELL — bloque B (cascada entre semanas)
@@ -456,7 +475,7 @@ function ss1Row(di, side, ex){
     ? `<span class="pill pct"><em>${prog.sets}</em>&nbsp;×&nbsp;${prog.reps}&nbsp;·&nbsp;${Math.round(prog.pct*100)}%</span>`
     : `<span class="pill"><em>${ex.sets}</em>&nbsp;×&nbsp;${ex.reps}</span>`;
   const carga = isPrincipal
-    ? principalCell(cw, di)
+    ? principalCell(cw, di, side)
     : cargaCell(cw, di, `ss1${side}`);
   const fb = kfb(cw, di, `ss1${side}`);
   const rest = isPrincipal ? (cw>=3?'3-5\'':'2-3\'') : '60-90"';
