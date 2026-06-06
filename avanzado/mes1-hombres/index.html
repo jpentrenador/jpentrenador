@@ -166,32 +166,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
   <span style="color:var(--blue);font-weight:700">Azul</span> = core
 </div>
 
-<!-- CARGA DE REFERENCIA -->
-<div class="ref-box" style="margin:16px auto;max-width:820px;">
-  <div class="ref-box-title">📊 Cargas de referencia — Semana 1 (4×5 · RIR 1-2 = 85%)</div>
-  <div class="ref-grid">
-    <div class="ref-item">
-      <label>Sentadilla con barra (Día 1)</label>
-      <input class="ref-input" type="number" placeholder="kg" id="ref_d0" oninput="onRef(0)">
-    </div>
-    <div class="ref-item">
-      <label>Peso muerto (Día 2)</label>
-      <input class="ref-input" type="number" placeholder="kg" id="ref_d1" oninput="onRef(1)">
-    </div>
-    <div class="ref-item">
-      <label>Press plano (Día 3)</label>
-      <input class="ref-input" type="number" placeholder="kg" id="ref_d2_a" oninput="onRefSide(2,'a',this.value)">
-    </div>
-    <div class="ref-item">
-      <label>Remo Pendlay (Día 3)</label>
-      <input class="ref-input" type="number" placeholder="kg" id="ref_d2_b" oninput="onRefSide(2,'b',this.value)">
-    </div>
-  </div>
-  <div class="ref-hint">
-    ⚡ Una vez que ingresás la carga de S1, las cargas de S2 (90%), S3 (95%) y S4 (100%) se calculan automáticamente.
-    Redondeá siempre al disco más cercano disponible en tu gym.
-  </div>
-</div>
 
 <main class="content" id="content"></main>
 
@@ -377,9 +351,9 @@ function principalCell(w, di, side='a'){
     const val = S[refKey]||'';
     return `<div style="display:flex;flex-direction:column;gap:3px;">
       <input class="kg-in" type="number" placeholder="kg (85%)"
-        id="${refKey}_inline"
+        data-ref="${refKey}"
         value="${val}"
-        oninput="syncRef(${di}, '${side}', this.value)"
+        oninput="onPrincipal(this,'${refKey}')"
         style="border-color:rgba(200,241,53,.4);">
       <span style="font-size:9px;color:rgba(200,241,53,.5);text-align:center;">tu 85% → RIR 1-2</span>
     </div>`;
@@ -387,9 +361,21 @@ function principalCell(w, di, side='a'){
   const kg85 = parseFloat(S[refKey])||0;
   const kg = calcKg(kg85, prog.pct);
   return `<div class="kg-auto-box">
-    <div class="kg-auto auto-kg" data-di="${di}" data-side="${side}" data-w="${w}">${kg?kg+' kg':'—'}</div>
+    <div class="kg-auto auto-kg" data-refkey="${refKey}" data-w="${w}">${kg?kg+' kg':'—'}</div>
     <div class="kg-auto-label">${Math.round(prog.pct*100)}%</div>
   </div>`;
+}
+
+function onPrincipal(inp, refKey){
+  const val = inp.value;
+  S[refKey] = parseFloat(val)||0;
+  persist();
+  // Actualizar celdas automáticas semanas 2-4
+  document.querySelectorAll(`.auto-kg[data-refkey="${refKey}"]`).forEach(el=>{
+    const w = parseInt(el.dataset.w);
+    const kg = calcKg(parseFloat(val)||0, PROG[w].pct);
+    el.textContent = kg ? kg+' kg' : '—';
+  });
 }
 
 function syncRef(di, side, val){
@@ -599,14 +585,14 @@ function render(){
     c.appendChild(b);
   });
 
-  // Restore ref inputs and update auto kg
-  [0,1,2].forEach(di=>{
-    const stored = S[`ref_d${di}`];
+  // Restore cargas principales (semanas 2-4)
+  document.querySelectorAll('.auto-kg[data-refkey]').forEach(el=>{
+    const refKey = el.dataset.refkey;
+    const stored = S[refKey];
     if(stored){
-      REFS[di] = parseFloat(stored);
-      const refInp = document.getElementById(`ref_d${di}${di===2?'_a':''}`);
-      if(refInp) refInp.value = stored;
-      updateAutoKg(di);
+      const w = parseInt(el.dataset.w);
+      const kg = calcKg(parseFloat(stored)||0, PROG[w].pct);
+      el.textContent = kg ? kg+' kg' : '—';
     }
   });
 }
