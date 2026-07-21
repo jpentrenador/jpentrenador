@@ -160,9 +160,49 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 /* RESPONSIVE */
 .tbl-wrap, .ss-wrap, .core-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .tbl{min-width:480px;}
+
+/* REPORTE WHATSAPP */
+
+/* MODAL REPORTE */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .25s;}
+.modal-overlay.show{opacity:1;}
+.modal-box{background:#141414;border:1px solid var(--border);border-radius:18px;padding:28px 24px;max-width:360px;width:100%;transform:scale(.9);transition:transform .25s;}
+.modal-overlay.show .modal-box{transform:scale(1);}
+.modal-emoji{font-size:52px;text-align:center;margin-bottom:12px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--white);text-align:center;margin-bottom:6px;}
+.modal-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5;}
+.modal-name-wrap{margin-bottom:16px;}
+.modal-name-wrap label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;}
+.modal-name-input{background:var(--black);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;width:100%;transition:border-color .18s;}
+.modal-name-input:focus{outline:none;border-color:var(--accent);}
+.modal-name-input::placeholder{color:#333;}
+.modal-btn-wa{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#25D366;border:none;border-radius:10px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#fff;cursor:pointer;margin-bottom:10px;transition:opacity .15s;}
+.modal-btn-wa:hover{opacity:.88;}
+.modal-btn-wa svg{width:20px;height:20px;}
+.modal-btn-skip{width:100%;background:transparent;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:border-color .15s;}
+.modal-btn-skip:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
+
+
+<!-- MODAL REPORTE -->
+<div class="modal-overlay" id="report-modal">
+  <div class="modal-box">
+    <div class="modal-emoji">🎉</div>
+    <div class="modal-title">¡DÍA COMPLETADO!</div>
+    <div class="modal-sub">¿Querés enviarle tu progreso a JP?</div>
+    <div class="modal-name-wrap">
+      <label>Tu nombre</label>
+      <input class="modal-name-input" type="text" id="modal-name" placeholder="Ej: María González">
+    </div>
+    <button class="modal-btn-wa" onclick="sendReportFromModal()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.09 1.508 5.814L.057 23.25a.75.75 0 00.917.928l5.62-1.476A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.655-.49-5.19-1.348l-.372-.214-3.862 1.013 1.033-3.77-.234-.386A9.955 9.955 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      ENVIAR A JP
+    </button>
+    <button class="modal-btn-skip" onclick="closeReportModal()">Ahora no</button>
+  </div>
+</div>
 
 <header class="topbar">
   <div class="logo">
@@ -199,6 +239,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 </div>
 
 <main class="content" id="content"></main>
+
 
 <!-- CALENDARIO MENSUAL -->
 <section class="cal-section" id="cal-section">
@@ -485,6 +526,7 @@ function markDayDone(w,d){
   if(isWeekDone(w)&&w<4)cw=w+1;
   renderWeekNav();
   render();
+  setTimeout(openReportModal, 1400);
 }
 
 function renderWeekNav(){
@@ -726,6 +768,76 @@ cw=getCurrentWeek();
 renderWeekNav();
 render();
 initCalendar();
+
+// ══════════════════════════════════════════
+// REPORTE WHATSAPP — MODAL
+// ══════════════════════════════════════════
+function openReportModal(){
+  const modal = document.getElementById('report-modal');
+  const inp = document.getElementById('modal-name');
+  if(inp && S.reportName) inp.value = S.reportName;
+  modal.style.display = 'flex';
+  setTimeout(()=>modal.classList.add('show'), 10);
+}
+
+function closeReportModal(){
+  const modal = document.getElementById('report-modal');
+  modal.classList.remove('show');
+  setTimeout(()=>modal.style.display='none', 250);
+}
+
+function sendReportFromModal(){
+  const inp = document.getElementById('modal-name');
+  const name = (inp && inp.value.trim()) || S.reportName || 'Alumna';
+  S.reportName = name; persist();
+
+  const trained = getTrainedDates();
+  const total = trained.size;
+  let semanasText = '';
+  for(let w=1;w<=4;w++){
+    const curW = getCurrentWeek();
+    if(w < curW) semanasText += `\n✅ Semana ${w}: Completada`;
+    else if(w === curW){
+      const d = getCurrentDay(w);
+      semanasText += `\n🔄 Semana ${w}: En curso`;
+      if(d > 0) semanasText += ` — ${d} día${d>1?'s':''} hecho${d>1?'s':''}`;
+    } else {
+      semanasText += `\n⏳ Semana ${w}: Pendiente`;
+    }
+  }
+  const cargaKeys = [
+    {label:'Sentadilla',         key:`${cw}|0|ss1a|kg`},
+    {label:'Hip thrust',         key:`${cw}|1|ss1a|kg`},
+    {label:'Peso muerto rumano', key:`${cw}|2|ss1a|kg`},
+    {label:'Floor press',        key:`${cw}|0|ss1b|kg`},
+  ];
+  let cargasText = '';
+  cargaKeys.forEach(({label,key})=>{
+    const v = S[key]; if(v) cargasText += `\n• ${label}: ${v} kg`;
+  });
+  if(!cargasText) cargasText = '\n• Sin cargas registradas aún';
+  const curW2 = getCurrentWeek();
+  const prog = PROG[curW2];
+  const msg =
+`📊 *Reporte JP Entrenador*
+👤 ${name} — ADV2 · Mes 1 · Mujeres
+
+📅 *Progreso del mes:* ${total} / 12 sesiones
+${semanasText}
+
+💪 *Cargas S${curW2} (${prog.sets}×${prog.reps}):*${cargasText}
+
+_Enviado desde la app de JP Entrenador_`;
+
+  window.open('https://wa.me/22356402665?text=' + encodeURIComponent(msg), '_blank');
+  closeReportModal();
+}
+
+// Cerrar modal tocando el fondo
+document.getElementById('report-modal').addEventListener('click', function(e){
+  if(e.target === this) closeReportModal();
+});
+
 </script>
 </body>
 </html>
