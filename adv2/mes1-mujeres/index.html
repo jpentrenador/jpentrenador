@@ -793,9 +793,11 @@ function sendReportFromModal(){
 
   const trained = getTrainedDates();
   const total = trained.size;
+
+  // Semanas
+  const curW = getCurrentWeek();
   let semanasText = '';
   for(let w=1;w<=4;w++){
-    const curW = getCurrentWeek();
     if(w < curW) semanasText += `\n✅ Semana ${w}: Completada`;
     else if(w === curW){
       const d = getCurrentDay(w);
@@ -805,27 +807,90 @@ function sendReportFromModal(){
       semanasText += `\n⏳ Semana ${w}: Pendiente`;
     }
   }
-  const cargaKeys = [
-    {label:'Sentadilla',         key:`${cw}|0|ss1a|kg`},
-    {label:'Hip thrust',         key:`${cw}|1|ss1a|kg`},
-    {label:'Peso muerto rumano', key:`${cw}|2|ss1a|kg`},
-    {label:'Floor press',        key:`${cw}|0|ss1b|kg`},
+
+  // Fechas reales entrenadas
+  const fechas = [...trained].sort();
+  let fechasText = fechas.length > 0
+    ? fechas.map(ds => {
+        const [y,m,d] = ds.split('-');
+        return `\n📌 ${d}/${m}/${y}`;
+      }).join('')
+    : '\n• Sin fechas registradas aún';
+
+  // Todas las cargas por semana y día
+  const ejercicios = [
+    {dia:0, key:'ss1a', label:'Sentadilla'},
+    {dia:0, key:'ss1b', label:'Remo banco alto'},
+    {dia:0, key:'ss2a', label:'Isquio pelota'},
+    {dia:0, key:'ss2b', label:'Floor press'},
+    {dia:0, key:'comp0', label:'Prensa un pie'},
+    {dia:0, key:'comp1', label:'Abductor máquina'},
+    {dia:0, key:'comp2', label:'Glúteo polea'},
+    {dia:1, key:'ss1a', label:'Hip thrust'},
+    {dia:1, key:'ss1b', label:'Floor press barra'},
+    {dia:1, key:'ss2a', label:'Desplantes'},
+    {dia:1, key:'ss2b', label:'Patada glúteo máquina'},
+    {dia:1, key:'comp0', label:'Sillón cuádriceps'},
+    {dia:2, key:'ss1a', label:'Peso muerto rumano'},
+    {dia:2, key:'ss1b', label:'Press plano'},
+    {dia:2, key:'ss2a', label:'Sentadilla goblet'},
+    {dia:2, key:'ss2b', label:'Tirones A/cerrado'},
+    {dia:2, key:'comp0', label:'Buenos días'},
+    {dia:2, key:'comp1', label:'Curl barra'},
+    {dia:2, key:'comp2', label:'Ext polea con soga'},
   ];
+
   let cargasText = '';
-  cargaKeys.forEach(({label,key})=>{
-    const v = S[key]; if(v) cargasText += `\n• ${label}: ${v} kg`;
+  const dias = ['Día 1','Día 2','Día 3'];
+  [0,1,2].forEach(di => {
+    let diaCargas = '';
+    ejercicios.filter(e=>e.dia===di).forEach(({key,label})=>{
+      // buscar mejor carga registrada entre semanas
+      let bestVal = '';
+      for(let w=4;w>=1;w--){
+        const v = S[`${w}|${di}|${key}|kg`];
+        if(v){ bestVal = v; break; }
+      }
+      if(bestVal) diaCargas += `\n  • ${label}: ${bestVal} kg`;
+    });
+    if(diaCargas) cargasText += `\n*${dias[di]}:*${diaCargas}`;
   });
   if(!cargasText) cargasText = '\n• Sin cargas registradas aún';
-  const curW2 = getCurrentWeek();
-  const prog = PROG[curW2];
+
+  // Todo el feedback
+  let feedbackText = '';
+  [0,1,2].forEach(di => {
+    let diaFb = '';
+    ejercicios.filter(e=>e.dia===di).forEach(({key,label})=>{
+      for(let w=1;w<=4;w++){
+        const v = S[`${w}|${di}|${key}|fb`];
+        if(v) diaFb += `\n  • S${w} ${label}: "${v}"`;
+      }
+    });
+    // core feedback
+    [0,1,2].forEach(ei=>{
+      for(let w=1;w<=4;w++){
+        const v = S[`${w}|${di}|core${ei}|fb`];
+        if(v) diaFb += `\n  • S${w} Core ${ei+1}: "${v}"`;
+      }
+    });
+    if(diaFb) feedbackText += `\n*${dias[di]}:*${diaFb}`;
+  });
+  if(!feedbackText) feedbackText = '\n• Sin feedback registrado aún';
+
+  const prog = PROG[curW];
   const msg =
 `📊 *Reporte JP Entrenador*
 👤 ${name} — ADV2 · Mes 1 · Mujeres
 
-📅 *Progreso del mes:* ${total} / 12 sesiones
+📅 *Progreso:* ${total} / 12 sesiones · S${curW} (${prog.sets}×${prog.reps})
 ${semanasText}
 
-💪 *Cargas S${curW2} (${prog.sets}×${prog.reps}):*${cargasText}
+🗓️ *Días entrenados:*${fechasText}
+
+💪 *Cargas registradas:*${cargasText}
+
+📝 *Feedback:*${feedbackText}
 
 _Enviado desde la app de JP Entrenador_`;
 
