@@ -284,7 +284,7 @@ const CORE = [
 const DAYS = [
   { t:'Día 1', sub:'Empuje inferior dominante',
     ss1:{
-      a:{n:'Sentadilla',            tipo:'principal', pct:true, v:''},
+      a:{n:'Sentadilla tempo',      tipo:'principal', pct:true, v:''},
       b:{n:'Remo con barra bco alto', tipo:'ss', sets:'4', reps:'6-8', v:''},
     },
     ss2:{
@@ -299,7 +299,7 @@ const DAYS = [
   },
   { t:'Día 2', sub:'Tracción inferior dominante',
     ss1:{
-      a:{n:'Peso muerto',         tipo:'principal', pct:true, v:''},
+      a:{n:'Peso muerto tempo',   tipo:'principal', pct:true, v:''},
       b:{n:'Press con manc (sb)', tipo:'ss', sets:'4', reps:'6-8', v:''},
     },
     ss2:{
@@ -314,7 +314,7 @@ const DAYS = [
   },
   { t:'Día 3', sub:'Tren superior dominante',
     ss1:{
-      a:{n:'Press plano',  tipo:'principal', pct:true, v:''},
+      a:{n:'Press plano box', tipo:'principal', pct:true, v:''},
       b:{n:'Remo Pendlay', tipo:'principal', pct:true, v:''},
     },
     ss2:{
@@ -555,8 +555,8 @@ function cargaCell(w,d,k){
 }
 
 function onKg(inp){
-  const key=inp.dataset.k,val=inp.value,w=parseInt(inp.dataset.w);
-  S[key]=val;persist();
+  const key=inp.dataset.k,val=inp.value.trim(),w=parseInt(inp.dataset.w);
+  if(val===''){delete S[key];}else{S[key]=val;}persist();
   const parts=key.split('|'),d=parts[1],k=parts[2];
   for(let next=w+1;next<=4;next++){
     const nk=kkg(next,d,k);
@@ -768,7 +768,6 @@ function render(){
         <table class="tbl"><thead><tr>${TH}</tr></thead>
         <tbody>${hiperRows(di)}</tbody></table>
       </div>
-      ${bottomSwipe}
       </div>
     `;
     c.appendChild(b);
@@ -824,8 +823,18 @@ function render(){
   });
 }
 
-function onFb(inp){S[inp.dataset.k]=inp.value;persist();}
-function persist(){try{localStorage.setItem('jp_adv4_h_m1',JSON.stringify(S));}catch(e){}}
+function onFb(inp){
+  const val=inp.value;
+  if(val===''){delete S[inp.dataset.k];}else{S[inp.dataset.k]=val;}
+  persist();
+}
+function persist(){
+  try{
+    localStorage.setItem('jp_adv4_h_m1',JSON.stringify(S));
+  }catch(e){
+    console.warn('Error al guardar:',e);
+  }
+}
 
 
 // ══════════════════════════════════════════
@@ -927,6 +936,8 @@ cw = getCurrentWeek();
 renderWeekNav();
 render();
 initCalendar();
+window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist();});
+window.addEventListener('pagehide',()=>{persist();});
 </script>
 </body>
 </html>
