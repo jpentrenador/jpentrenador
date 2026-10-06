@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JP Entrenador — Panel de Rutinas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--black:#080808;--dark:#111;--border:#252525;--accent:#C8F135;--adim:rgba(200,241,53,.1);--text:#efefef;--muted:#777;--white:#fff;--blue:#7dd3fc;--pink:#f9a8d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{overflow-x:hidden;}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-mark{width:32px;height:32px;min-width:32px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2.5px;color:var(--white);}
+.logo-name em{color:var(--accent);font-style:normal;}
+.topbar-badge{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.hero{padding:32px 20px 24px;border-bottom:1px solid var(--border);background:linear-gradient(120deg,#080808 0%,#101400 60%,#080808 100%);position:relative;overflow:hidden;}
+.hero::after{content:'RUTINAS';position:absolute;right:-10px;bottom:-20px;font-family:'Bebas Neue',sans-serif;font-size:100px;color:rgba(200,241,53,.03);letter-spacing:-3px;pointer-events:none;}
+.hero-sup{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.hero-h{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);margin-bottom:4px;}
+.hero-sub{font-size:12px;color:var(--muted);}
+.wrap{max-width:860px;margin:0 auto;padding:32px 20px 60px;}
+
+/* GENDER TABS */
+.gender-tabs{display:flex;gap:8px;margin-bottom:28px;}
+.gtab{flex:1;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--dark);cursor:pointer;text-align:center;transition:all .18s;}
+.gtab:hover{border-color:var(--accent);}
+.gtab.active-h{background:rgba(125,211,252,.08);border-color:rgba(125,211,252,.5);}
+.gtab.active-m{background:rgba(249,168,212,.08);border-color:rgba(249,168,212,.5);}
+.gtab-icon{font-size:22px;margin-bottom:4px;}
+.gtab-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
+.gtab.active-h .gtab-label{color:var(--blue);}
+.gtab.active-m .gtab-label{color:var(--pink);}
+
+/* CATEGORY */
+.cat-section{margin-bottom:32px;}
+.cat-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.cat-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--white);}
+.cat-line{flex:1;height:1px;background:var(--border);}
+.cat-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:20px;}
+.cat-badge.avanzada{background:rgba(200,241,53,.1);border:1px solid rgba(200,241,53,.3);color:var(--accent);}
+.cat-badge.tempo{background:rgba(125,211,252,.1);border:1px solid rgba(125,211,252,.3);color:var(--blue);}
+
+/* CARDS */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.rcard{background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:16px 18px;text-decoration:none;display:flex;flex-direction:column;gap:8px;transition:all .2s;position:relative;overflow:hidden;}
+.rcard::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(200,241,53,.04),transparent);opacity:0;transition:opacity .2s;}
+.rcard:hover{border-color:rgba(200,241,53,.4);transform:translateY(-2px);}
+.rcard:hover::after{opacity:1;}
+.rcard.tempo-card{border-color:rgba(125,211,252,.2);}
+.rcard.tempo-card:hover{border-color:rgba(125,211,252,.5);}
+.rcard.tempo-card::after{background:linear-gradient(135deg,rgba(125,211,252,.04),transparent);}
+.rcard-top{display:flex;align-items:center;justify-content:space-between;}
+.rcard-level{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);}
+.rcard.tempo-card .rcard-level{color:var(--blue);}
+.rcard-mes{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.rcard-name{font-size:13px;font-weight:600;color:var(--white);line-height:1.3;}
+.rcard-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.rpill{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:#1a1a1a;border:1px solid var(--border);color:var(--muted);}
+.rcard-arrow{font-size:16px;color:var(--muted);margin-top:4px;transition:color .2s;}
+.rcard:hover .rcard-arrow{color:var(--accent);}
+.rcard.tempo-card:hover .rcard-arrow{color:var(--blue);}
+
+/* COPY BTN */
+.copy-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;margin-top:4px;width:fit-content;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.copied{border-color:var(--accent);color:var(--accent);}
+
+/* GENDER PANEL */
+.gender-panel{display:none;}
+.gender-panel.active{display:block;}
+
+/* EMPTY */
+.empty{padding:32px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--border);border-radius:12px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#080808" stroke-width="2.8" stroke-linecap="round"><path d="M6 4v16M18 4v16M3 8h18M3 16h18"/></svg>
+    </div>
+    <div class="logo-name"><em>JP</em> ENTRENADOR</div>
+  </div>
+  <div class="topbar-badge">Panel de rutinas</div>
+</div>
+
+<div class="hero">
+  <div class="hero-sup">JP Entrenador</div>
+  <div class="hero-h">PANEL DE RUTINAS</div>
+  <div class="hero-sub">Seleccioná género y copiá el link para enviarle al alumno</div>
+</div>
+
+<div class="wrap">
+
+  <!-- TABS GÉNERO -->
+  <div class="gender-tabs">
+    <div class="gtab active-h" id="tab-h" onclick="setGender('h')">
+      <div class="gtab-icon">♂</div>
+      <div class="gtab-label">Hombres</div>
+    </div>
+    <div class="gtab" id="tab-m" onclick="setGender('m')">
+      <div class="gtab-icon">♀</div>
+      <div class="gtab-label">Mujeres</div>
+    </div>
+  </div>
+
+  <!-- PANEL HOMBRES -->
+  <div class="gender-panel active" id="panel-h">
+
+    <div class="cat-section">
+      <div class="cat-header">
+        <div class="cat-title">AVANZADAS</div>
+        <div class="cat-line"></div>
+        <div class="cat-badge avanzada">Progresión pesada</div>
+      </div>
+      <div class="cards-grid">
+
+        <a class="rcard" href="https://jpentrenador.github.io/jpentrenador/adv1/mes1-hombres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 1</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×8→10→12→6</span><span class="rpill">♂ Hombres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv1/mes1-hombres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+        <a class="rcard" href="https://jpentrenador.github.io/jpentrenador/adv2/mes1-hombres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 2</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×8→10→12→6</span><span class="rpill">♂ Hombres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv2/mes1-hombres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+        <a class="rcard" href="https://jpentrenador.github.io/jpentrenador/adv3/mes1-hombres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 3</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×8→10→12→6</span><span class="rpill">♂ Hombres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv3/mes1-hombres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="cat-section">
+      <div class="cat-header">
+        <div class="cat-title">TEMPO</div>
+        <div class="cat-line"></div>
+        <div class="cat-badge tempo">Control y técnica</div>
+      </div>
+      <div class="cards-grid">
+
+        <a class="rcard tempo-card" href="https://jpentrenador.github.io/jpentrenador/adv4/mes1-hombres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 4</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Familias de la Fuerza</div>
+          <div class="rcard-pills"><span class="rpill">4×5→4×4→3×3→2×2</span><span class="rpill">♂ Hombres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv4/mes1-hombres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+        <a class="rcard tempo-card" href="https://jpentrenador.github.io/jpentrenador/adv5/mes1-hombres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 5</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×6→8→10→6</span><span class="rpill">♂ Hombres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv5/mes1-hombres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+        <a class="rcard tempo-card" href="https://jpentrenador.github.io/jpentrenador/tempo/mes1-hombres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">TEMPO</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza con Control</div>
+          <div class="rcard-pills"><span class="rpill">4×6→8→10→6</span><span class="rpill">♂ Hombres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/tempo/mes1-hombres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANEL MUJERES -->
+  <div class="gender-panel" id="panel-m">
+
+    <div class="cat-section">
+      <div class="cat-header">
+        <div class="cat-title">AVANZADAS</div>
+        <div class="cat-line"></div>
+        <div class="cat-badge avanzada">Progresión pesada</div>
+      </div>
+      <div class="cards-grid">
+
+        <a class="rcard" href="https://jpentrenador.github.io/jpentrenador/adv1/mes1-mujeres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 1</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×8→10→12→6</span><span class="rpill">♀ Mujeres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv1/mes1-mujeres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+        <a class="rcard" href="https://jpentrenador.github.io/jpentrenador/adv2/mes1-mujeres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 2</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×8→10→12→6</span><span class="rpill">♀ Mujeres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv2/mes1-mujeres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+        <a class="rcard" href="https://jpentrenador.github.io/jpentrenador/adv3/mes1-mujeres/index.html" target="_blank">
+          <div class="rcard-top">
+            <div class="rcard-level">ADV 3</div>
+            <div class="rcard-mes">Mes 1</div>
+          </div>
+          <div class="rcard-name">Fuerza e Hipertrofia</div>
+          <div class="rcard-pills"><span class="rpill">4×6→8→10→6</span><span class="rpill">♀ Mujeres</span></div>
+          <button class="copy-btn" onclick="copyLink(event,'https://jpentrenador.github.io/jpentrenador/adv3/mes1-mujeres/index.html',this)">📋 Copiar link</button>
+          <div class="rcard-arrow">→</div>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function setGender(g){
+  document.getElementById('panel-h').classList.toggle('active', g==='h');
+  document.getElementById('panel-m').classList.toggle('active', g==='m');
+  document.getElementById('tab-h').className = 'gtab' + (g==='h' ? ' active-h' : '');
+  document.getElementById('tab-m').className = 'gtab' + (g==='m' ? ' active-m' : '');
+}
+
+function copyLink(e, url, btn){
+  e.preventDefault();
+  e.stopPropagation();
+  navigator.clipboard.writeText(url).then(()=>{
+    btn.textContent = '✓ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copiar link';btn.classList.remove('copied');}, 2000);
+  }).catch(()=>{
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copiado!';
+    setTimeout(()=>btn.textContent='📋 Copiar link', 2000);
+  });
+}
+</script>
+</body>
+</html>
