@@ -352,7 +352,7 @@ function bindReset(){const r=$('resetBtn');if(!r)return;r.onclick=()=>{if(r.data
 
 /* ══════════ BLOQUE ══════════ */
 let cur={w:1,d:0,st:[],i:0};
-function startDay(w,d){cur={w,d,st:steps(w,d),i:0};audioUnlock();keepAwake();renderEx(true);}
+function startDay(w,d){cur={w,d,st:steps(w,d),i:0};audioUnlock();keepAwake();show(vEx);renderEx(true);}
 const rKey=s=>`${cur.w}|${cur.d}|${s.id}`;
 
 function kgBlock(it){
