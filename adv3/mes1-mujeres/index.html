@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b0c09">
-<title>ADV4 · Mes 1 Hombres</title>
+<title>ADV3 · Mes 1 Mujeres</title>
 <!-- Ícono y nombre al agregar a la pantalla de inicio -->
 <link rel="apple-touch-icon" href="../../assets/icono-jp.png">
 <link rel="icon" type="image/png" sizes="512x512" href="../../assets/icono-jp.png">
@@ -214,39 +214,27 @@ button{cursor:pointer;border:0;background:none;padding:0}
 </div>
 
 <script>
-/* ══════════ RUTINA ADV4 · MES 1 · HOMBRES ══════════ */
+/* ══════════ RUTINA ADV3 · MES 1 · MUJERES ══════════ */
 const WA_NUMBER='5492235640266';
-const ROUTINE='ADV4 · Mes 1 · Hombres';
-const STORE='jp_adv4_h_m1';   // misma clave que la versión anterior: no se pierde el progreso
+const ROUTINE='ADV3 · Mes 1 · Mujeres';
+const STORE='jp_adv3_m_m1';   // misma clave que la versión anterior: no se pierde el progreso
 
-const CORE=[
-  {n:'Plancha frontal dinámica', reps:'10', v:''},
-  {n:'Pallof press',             reps:'10', lado:1, v:''},
-  {n:'Caminata del granjero',    reps:'20', unit:'metros', v:''},
-];
 const DAYS=[
- {t:'Día 1',sub:'Empuje · piernas dominante',
-  ss1:{a:{n:'Sentadilla tempo',principal:1,v:''},b:{n:'Remo con barra en banco alto',sets:4,reps:'6 a 8',v:''}},
-  ss2:{a:{n:'Peso muerto a 1 pie',v:'https://youtube.com/shorts/sO13mCSI4a0'},b:{n:'Cruces en polea baja',v:''}},
-  hiper:[[{n:'Aperturas',v:''},{n:'Tirones agarre cerrado',v:'https://youtube.com/shorts/jwu3w15ev9Y'}],
-         [{n:'Press cubano',v:''},{n:'Retro poleas cruzadas',v:''}],
-         [{n:'Alternado',v:'https://youtube.com/shorts/ixXSQFCUK9s'},{n:'Extensión en polea con soga',v:'https://youtube.com/shorts/6V5yrlfe-qQ'}]]},
- {t:'Día 2',sub:'Tracción · piernas dominante',
-  ss1:{a:{n:'Peso muerto tempo',principal:1,v:''},b:{n:'Press con mancuernas (sb)',sets:4,reps:'6 a 8',v:'https://youtube.com/shorts/JG3oGeXNtNU'}},
-  ss2:{a:{n:'Búlgara',v:''},b:{n:'Serrucho',v:'https://youtube.com/shorts/UPzXWQS5YcE'}},
-  hiper:[[{n:'Aperturas en declinado',v:''},{n:'Tirones agarre abierto',v:''}],
-         [{n:'Press militar sentado',v:''},{n:'Vuelos laterales sentado',v:''}],
-         [{n:'Curl Scott',v:''},{n:'Fondos en banco',v:''}]]},
- {t:'Día 3',sub:'Tren superior dominante',
-  ss1:{a:{n:'Press plano box',principal:1,v:''},b:{n:'Remo Pendlay',principal:1,v:'https://youtube.com/shorts/G6F3nnD0j9I'}},
-  ss2:{a:{n:'Peso muerto rumano con hexagonal',v:''},b:{n:'Sentadilla del cosaco',v:''}},
-  hiper:[[{n:'Fuerza en paralelas',v:''},{n:'Dominadas',v:'https://youtube.com/shorts/-Rx6wsIFuO0'}],
-         [{n:'Remo al mentón agarre ancho',v:'https://youtube.com/shorts/DKz4gSwyDFA'},{n:'Vuelos posteriores en banco alto',v:''}],
-         [{n:'Curl en polea',v:'https://youtube.com/shorts/3YIcaSw_PN8'},{n:'Francés a la frente',v:''}]]},
+ {t:'Día 1',sub:'Inferior + superior',
+  ss1:[{n:'Sentadilla',v:'https://youtube.com/shorts/3Sz8491FPgI'},{n:'Remo horizontal',v:'https://youtube.com/shorts/svbRb17XkRI'}],
+  ss2:[{n:'Hip thrust',v:'https://youtube.com/shorts/x5C2gPulzIs'},{n:'Press plano con mancuernas',v:'https://youtube.com/shorts/JG3oGeXNtNU'}],
+  comp:[{n:'Prensa',v:''},{n:'Curl Scott',v:''},{n:'Fondos en banco',v:''}]},
+ {t:'Día 2',sub:'Posterior + funcional',
+  ss1:[{n:'Peso muerto sumo',v:''},{n:'Empuje',v:''}],
+  ss2:[{n:'Desplantes con apoyo de rodilla',v:''},{n:'Tirones agarre abierto',v:''}],
+  comp:[{n:'Sentadilla zercher',v:'https://youtube.com/shorts/gdt4fXs64Y0'},{n:'Patada de glúteo',v:''}]},
+ {t:'Día 3',sub:'Full body control',
+  ss1:[{n:'Despegue con hexagonal',v:''},{n:'Press plano',v:'https://youtube.com/shorts/J34BMP905uE'}],
+  ss2:[{n:'Sentadilla del cosaco',v:''},{n:'Remo en banco alto',v:'https://youtube.com/shorts/5Ob2WKZ3lfc'}],
+  comp:[{n:'Abductor en máquina',v:''},{n:'Sillón cuádriceps',v:'https://youtube.com/shorts/pdVpUY2uRyI'},{n:'Retro en polea con soga',v:''}]},
 ];
-const PROG={1:{sets:4,reps:5,pct:.85},2:{sets:4,reps:4,pct:.90},3:{sets:3,reps:3,pct:.95},4:{sets:2,reps:2,pct:1}};
-const PROG_B={1:6,2:8,3:10,4:6};
-const COLOR={core:'var(--core)',ss1:'var(--lime)',ss2:'var(--b)',hiper:'var(--hip)'};
+const PROG={1:{sets:4,reps:6},2:{sets:4,reps:8},3:{sets:4,reps:10},4:{sets:4,reps:6}};
+const COLOR={ss1:'var(--lime)',ss2:'var(--b)',comp:'var(--hip)'};
 
 /* ── estado (compatible con la versión anterior) ── */
 let S={};
@@ -270,19 +258,13 @@ function prevKg(w,d,key){for(let p=w-1;p>=1;p--){const v=S[kgKey(p,d,key)];if(v)
 /* ── pasos del día ── */
 function steps(w,d){
   const D=DAYS[d],P=PROG[w],out=[];
-  CORE.forEach((e,i)=>out.push({id:'core'+i,kind:'core',label:'Core · activación',
-    items:[{key:'core'+i,n:e.n,v:e.v,sets:2,reps:e.reps,unit:e.unit||'repeticiones',lado:e.lado}],rest:[45,45]}));
-  const mk=(e,key,side,blk)=>e.principal
-    ?{key,n:e.n,v:e.v,sets:P.sets,reps:String(P.reps),unit:'repeticiones',principal:1,side,pct:P.pct}
-    :blk==='ss1'?{key,n:e.n,v:e.v,sets:e.sets,reps:e.reps,unit:'repeticiones'}
-    :blk==='ss2'?{key,n:e.n,v:e.v,sets:4,reps:String(PROG_B[w]),unit:'repeticiones'}
-    :{key,n:e.n,v:e.v,sets:3,reps:'10',unit:'repeticiones'};
-  out.push({id:'ss1',kind:'ss1',label:'Superserie 1 · Principal',
-    items:[mk(D.ss1.a,'ss1a','a','ss1'),mk(D.ss1.b,'ss1b','b','ss1')],rest:w>=3?[180,300]:[120,180]});
-  out.push({id:'ss2',kind:'ss2',label:'Superserie 2 · Complementarios',
-    items:[mk(D.ss2.a,'ss2a','a','ss2'),mk(D.ss2.b,'ss2b','b','ss2')],rest:[60,90]});
-  D.hiper.forEach((p,i)=>out.push({id:'hiper'+i,kind:'hiper',label:`Hipertrofia · par ${i+1} de 3`,
-    items:[mk(p[0],`hiper${i}a`,'a','h'),mk(p[1],`hiper${i}b`,'b','h')],rest:[60,60]}));
+  const mk=(e,key,sets,reps)=>({key,n:e.n,v:e.v,sets,reps:String(reps),unit:'repeticiones'});
+  out.push({id:'ss1',kind:'ss1',label:'Bloque 1 · Principal + complementario',
+    items:D.ss1.map((e,i)=>mk(e,'ss1_'+i,P.sets,P.reps)),rest:[120,180]});
+  out.push({id:'ss2',kind:'ss2',label:'Bloque 2 · En superserie',
+    items:D.ss2.map((e,i)=>mk(e,'ss2_'+i,P.sets,P.reps)),rest:[60,90]});
+  D.comp.forEach((e,i)=>out.push({id:'comp'+i,kind:'comp',label:`Complementario · ${i+1} de ${D.comp.length}`,
+    items:[mk(e,'comp_'+i,4,'10 a 12')],rest:[60,60]}));
   out.forEach(s=>s.rounds=Math.max(...s.items.map(it=>it.sets)));
   return out;
 }
@@ -335,13 +317,11 @@ function renderHome(){
       <p class="focus">${DAYS[d].sub}</p>
       <p class="sub">Semana ${w} de 4 · ${ROUTINE}</p></div>
     <div class="weekdots" aria-label="Días de esta semana">${dots}</div>
-    ${w===1?`<div class="note"><b>Semana 1:</b> en el ejercicio principal elegí un peso con el que hagas 5 repeticiones y te queden 1 o 2 más. La app calcula sola el peso de las semanas que siguen.</div>`:''}
-    ${w===4?`<div class="note"><b>Semana al 100%:</b> si levantás el peso de hoy con buena técnica, superaste tu máximo anterior. ¡Eso es progreso real!</div>`:''}
+    ${w===4?`<div class="note"><b>Semana 4:</b> volvés a 6 repeticiones con más peso. Subí la carga en todos los ejercicios.</div>`:''}
     <div class="summary"><ol>
-      <li><span class="dot" style="background:${COLOR.core}"></span>Core · 3 ejercicios</li>
-      <li><span class="dot" style="background:${COLOR.ss1}"></span>Principal · ${P.sets} × ${P.reps} al ${Math.round(P.pct*100)}%</li>
-      <li><span class="dot" style="background:${COLOR.ss2}"></span>Complementarios · 4 × ${PROG_B[w]}</li>
-      <li><span class="dot" style="background:${COLOR.hiper}"></span>Hipertrofia · 3 pares de 3 × 10</li>
+      <li><span class="dot" style="background:${COLOR.ss1}"></span>Bloque 1 · superserie · ${P.sets} × ${P.reps}</li>
+      <li><span class="dot" style="background:${COLOR.ss2}"></span>Bloque 2 · superserie · ${P.sets} × ${P.reps}</li>
+      <li><span class="dot" style="background:${COLOR.comp}"></span>${DAYS[d].comp.length} complementarios · 4 × 10 a 12</li>
     </ol></div>
     <button class="cta pulse" id="startBtn">Empezar ▶</button>
     <button class="speak" id="hearBtn">🔊 Escuchar cómo funciona</button>
@@ -510,11 +490,6 @@ function renderFin(){
 /* ══════════ REPORTE WHATSAPP ══════════ */
 const FEEL={'Fácil':'😌','Bien':'💪','Me costó':'😮‍💨'};
 const dmy=x=>{const[y,m,d]=x.split('-');return `${d}/${m}/${y}`;};
-/* peso de un ejercicio en una semana: el principal sale del 85% de la semana 1 */
-function kgOf(w,d,it){
-  if(it.principal){const ref=parseFloat(S[refKey(d,it.side)])||0;return ref?calcKg(ref,PROG[w].pct):'';}
-  return S[kgKey(w,d,it.key)]||'';
-}
 function buildReport(name,only){
   const t=today(),hechos=ORDER.filter(([w,d])=>isDone(w,d)).length;
   let sem='';
@@ -525,9 +500,6 @@ function buildReport(name,only){
   let evo='';
   [0,1,2].forEach(d=>{let dl='';
     steps(1,d).forEach(st=>st.items.forEach(it=>{
-      if(st.kind==='core')return;
-      if(it.principal){const ref=parseFloat(S[refKey(d,it.side)])||0;
-        if(ref)dl+=`\n  • ${it.n} (calculado): ${[1,2,3,4].map(w=>`S${w} ${fmt(calcKg(ref,PROG[w].pct))}`).join(' → ')} kg`;return;}
       const v=[1,2,3,4].map(w=>{const x=S[kgKey(w,d,it.key)];return x?`S${w} ${fmt(x)}`:'';}).filter(Boolean);
       if(v.length)dl+=`\n  • ${it.n}: ${v.join(' → ')} kg`;}));
     if(dl)evo+=`\n*Día ${d+1}:*${dl}`;});
@@ -540,8 +512,8 @@ function buildReport(name,only){
       const K=`${w}|${d}|${st.id}`,done=S.rounds[K]||0,fx=S.fx[K]||{};
       const old=st.items.map(it=>S[fbKey(w,d,it.key)]).find(Boolean);
       const sens=fx.f||fx.n?[fx.f?`${FEEL[fx.f]||''} ${fx.f}`:'',fx.n?`"${fx.n.trim()}"`:''].filter(Boolean).join(' — '):(old?`"${old}"`:'');
-      const kgs=st.kind==='core'?[]:st.items.map(it=>{const v=kgOf(w,d,it);return v?`${it.n} ${fmt(v)} kg`:'';}).filter(Boolean);
-      if(done||sens||(kgs.length&&!st.items.every(it=>it.principal)))any=true;
+      const kgs=st.items.map(it=>{const v=S[kgKey(w,d,it.key)];return v?`${it.n} ${fmt(v)} kg`:'';}).filter(Boolean);
+      if(kgs.length||done||sens)any=true;
       const falta=done<st.rounds;if(falta)faltan++;
       if(!kgs.length&&!sens&&!falta)return;
       const name=st.items.length>1?st.label.split(' · ')[0]:st.items[0].n;
@@ -554,9 +526,8 @@ function buildReport(name,only){
     det+=`\n\n*S${w} · Día ${d+1}*${f?` — ${dmy(f)}`:''}${isDone(w,d)?'':' (sin terminar)'}`+
       `\n  ${faltan?`⚠️ Faltaron series en ${faltan} bloque${faltan>1?'s':''}`:'✓ Todas las series hechas'}${lines}`;
   });
-  const P=PROG[t?t[0]:4];
   return `📊 *Reporte JP Entrenador${only?` · S${only.w} Día ${only.d+1}`:' · mes completo'}*\n👤 ${name} — ${ROUTINE}\n\n`+
-    `📅 *Progreso:* ${hechos} / 12 entrenamientos${t?` · le toca Semana ${t[0]} · Día ${t[1]+1} (principal ${P.sets}×${P.reps} al ${Math.round(P.pct*100)}%)`:' · mes completo ✅'}${sem}\n\n`+
+    `📅 *Progreso:* ${hechos} / 12 entrenamientos${t?` · le toca Semana ${t[0]} · Día ${t[1]+1}`:' · mes completo ✅'}${sem}\n\n`+
     `🗓️ *Días entrenados:* ${fechas}\n\n`+
     `💪 *Evolución de cargas:*${evo||'\n• Sin cargas aún'}\n\n`+
     `📝 *${only?'Entrenamiento de hoy':'Detalle de cada entrenamiento'}:*${det||'\n• Sin entrenamientos aún'}\n\n_Enviado desde la app de JP Entrenador_`;
