@@ -53,7 +53,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 /* ── portada HOY ── */
 .home{flex:1;display:flex;flex-direction:column;gap:22px;padding-block:28px 40px}
 .eyebrow{font-weight:800;font-size:.95rem;letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
-.bigday{font-family:var(--display);font-size:7rem;line-height:.85}
+.bigday{font-family:var(--display);font-size:7rem;line-height:.95;padding-top:.16em}
 .sub{font-size:1.2rem;font-weight:600;color:var(--muted);margin:0}
 .focus{font-size:1.35rem;font-weight:800;margin:6px 0 2px}
 .weekdots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -143,7 +143,7 @@ button{cursor:pointer;border:0;background:none;padding:0}
 .fin{flex:1;display:flex;flex-direction:column;gap:20px;padding-block:36px}
 .check{width:116px;height:116px;border-radius:50%;background:var(--lime);color:var(--ink);display:flex;align-items:center;justify-content:center;align-self:center}
 .check svg{width:62px;height:62px}
-.fin h1{font-family:var(--display);font-size:3.8rem;line-height:.92;text-align:center;margin:0;font-weight:400;text-wrap:balance}
+.fin h1{font-family:var(--display);font-size:3.8rem;line-height:1;padding-top:.1em;text-align:center;margin:0;font-weight:400;text-wrap:balance}
 .fin p{text-align:center;font-size:1.15rem;color:var(--muted);margin:0}
 .prog{padding-block:24px 40px;display:flex;flex-direction:column;gap:20px}
 .prog h1{font-family:var(--display);font-size:3rem;margin:0;font-weight:400;line-height:1}
@@ -167,8 +167,6 @@ button{cursor:pointer;border:0;background:none;padding:0}
 </style>
 </head>
 <body>
-
-
 <!-- ═════ PORTADA ═════ -->
 <section class="view" id="vHome">
   <div class="top"><div class="wrap">
@@ -253,7 +251,7 @@ const COLOR={core:'var(--core)',ss1:'var(--lime)',ss2:'var(--b)',hiper:'var(--hi
 /* ── estado (compatible con la versión anterior) ── */
 let S={};
 try{S=JSON.parse(localStorage.getItem(STORE)||'{}')||{};}catch(e){S={};}
-S.progress=S.progress||{};S.trainedDates=S.trainedDates||[];S.rounds=S.rounds||{};S.fx=S.fx||{};
+S.progress=S.progress||{};S.trainedDates=S.trainedDates||[];S.rounds=S.rounds||{};S.fx=S.fx||{};S.doneOn=S.doneOn||{};
 S.ui=Object.assign({voice:true,size:1},S.ui||{});
 function persist(){try{localStorage.setItem(STORE,JSON.stringify(S));}catch(e){}}
 
@@ -501,6 +499,7 @@ function renderFin(){
     const now=new Date(),ds=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     if(!S.trainedDates.includes(ds))S.trainedDates.push(ds);
     if(!S.calStartMonth)S.calStartMonth=ds.slice(0,7);
+    S.doneOn[`w${w}d${d}`]=ds;
     persist();beep(true);say(`Excelente. Día ${d+1} completado. Último paso: mandale tu reporte a JP.`);
     renderReport(true);
   };
@@ -509,25 +508,58 @@ function renderFin(){
 }
 
 /* ══════════ REPORTE WHATSAPP ══════════ */
-function buildReport(name){
-  const t=today(),curW=t?t[0]:4,total=S.trainedDates.length;
+const FEEL={'Fácil':'😌','Bien':'💪','Me costó':'😮‍💨'};
+const dmy=x=>{const[y,m,d]=x.split('-');return `${d}/${m}/${y}`;};
+/* peso de un ejercicio en una semana: el principal sale del 85% de la semana 1 */
+function kgOf(w,d,it){
+  if(it.principal){const ref=parseFloat(S[refKey(d,it.side)])||0;return ref?calcKg(ref,PROG[w].pct):'';}
+  return S[kgKey(w,d,it.key)]||'';
+}
+function buildReport(name,only){
+  const t=today(),hechos=ORDER.filter(([w,d])=>isDone(w,d)).length;
   let sem='';
-  for(let w=1;w<=4;w++){const hechos=[0,1,2].filter(d=>isDone(w,d)).length;
-    sem+=hechos===3?`\n✅ Semana ${w}: Completada`:w===curW?`\n🔄 Semana ${w}: En curso — ${hechos} día${hechos!==1?'s':''} hecho${hechos!==1?'s':''}`:`\n⏳ Semana ${w}: Pendiente`;}
-  const fechas=[...S.trainedDates].sort().map(x=>{const[y,m,d]=x.split('-');return`\n📌 ${d}/${m}/${y}`;}).join('')||'\n• Sin fechas aún';
-  let cargas='',fbs='';
-  [0,1,2].forEach(d=>{
-    const st=steps(1,d);let c='',f='';
-    st.forEach(s=>s.items.forEach(it=>{
-      if(s.kind==='core'){}
-      else if(it.principal){const ref=parseFloat(S[refKey(d,it.side)])||0;if(ref)c+=`\n  • ${it.n}: ${fmt(ref)} kg (85%) → S${curW}: ${fmt(calcKg(ref,PROG[curW].pct))} kg`;}
-      else{let best='';for(let w=4;w>=1;w--){const v=S[kgKey(w,d,it.key)];if(v){best=v;break;}}if(best)c+=`\n  • ${it.n}: ${fmt(best)} kg`;}
-      for(let w=1;w<=4;w++){const v=S[fbKey(w,d,it.key)];if(v)f+=`\n  • S${w} ${it.n}: "${v}"`;}
-    }));
-    if(c)cargas+=`\n*Día ${d+1}:*${c}`;if(f)fbs+=`\n*Día ${d+1}:*${f}`;
+  for(let w=1;w<=4;w++){const n=[0,1,2].filter(d=>isDone(w,d)).length;
+    sem+=n===3?`\n✅ Semana ${w}: Completada`:n>0||(t&&t[0]===w)?`\n🔄 Semana ${w}: ${n} de 3 días`:`\n⏳ Semana ${w}: Pendiente`;}
+  const fechas=[...S.trainedDates].sort().map(dmy).join(' · ')||'Sin fechas aún';
+  // evolución de cargas semana a semana
+  let evo='';
+  [0,1,2].forEach(d=>{let dl='';
+    steps(1,d).forEach(st=>st.items.forEach(it=>{
+      if(st.kind==='core')return;
+      if(it.principal){const ref=parseFloat(S[refKey(d,it.side)])||0;
+        if(ref)dl+=`\n  • ${it.n} (calculado): ${[1,2,3,4].map(w=>`S${w} ${fmt(calcKg(ref,PROG[w].pct))}`).join(' → ')} kg`;return;}
+      const v=[1,2,3,4].map(w=>{const x=S[kgKey(w,d,it.key)];return x?`S${w} ${fmt(x)}`:'';}).filter(Boolean);
+      if(v.length)dl+=`\n  • ${it.n}: ${v.join(' → ')} kg`;}));
+    if(dl)evo+=`\n*Día ${d+1}:*${dl}`;});
+  // detalle de cada entrenamiento
+  let det='';
+  ORDER.forEach(([w,d])=>{
+    if(only&&(only.w!==w||only.d!==d))return;
+    let lines='',any=false,faltan=0;
+    steps(w,d).forEach(st=>{
+      const K=`${w}|${d}|${st.id}`,done=S.rounds[K]||0,fx=S.fx[K]||{};
+      const old=st.items.map(it=>S[fbKey(w,d,it.key)]).find(Boolean);
+      const sens=fx.f||fx.n?[fx.f?`${FEEL[fx.f]||''} ${fx.f}`:'',fx.n?`"${fx.n.trim()}"`:''].filter(Boolean).join(' — '):(old?`"${old}"`:'');
+      const kgs=st.kind==='core'?[]:st.items.map(it=>{const v=kgOf(w,d,it);return v?`${it.n} ${fmt(v)} kg`:'';}).filter(Boolean);
+      if(done||sens||(kgs.length&&!st.items.every(it=>it.principal)))any=true;
+      const falta=done<st.rounds;if(falta)faltan++;
+      if(!kgs.length&&!sens&&!falta)return;
+      const name=st.items.length>1?st.label.split(' · ')[0]:st.items[0].n;
+      const parts=[st.items.length>1?kgs.join(' + '):kgs.map(x=>x.replace(st.items[0].n+' ','')).join(''),
+        falta?`⚠️ ${done}/${st.rounds} ${st.items.length>1?'vueltas':'series'}`:'',sens].filter(Boolean);
+      lines+=`\n  • ${name}: ${parts.join(' · ')}`;
+    });
+    if(!any&&!isDone(w,d))return;
+    const f=S.doneOn[`w${w}d${d}`];
+    det+=`\n\n*S${w} · Día ${d+1}*${f?` — ${dmy(f)}`:''}${isDone(w,d)?'':' (sin terminar)'}`+
+      `\n  ${faltan?`⚠️ Faltaron series en ${faltan} bloque${faltan>1?'s':''}`:'✓ Todas las series hechas'}${lines}`;
   });
-  const P=PROG[curW];
-  return `📊 *Reporte JP Entrenador*\n👤 ${name} — ${ROUTINE}\n\n📅 *Progreso:* ${total} / 12 sesiones · S${curW} (${P.sets}×${P.reps})\n${sem}\n\n🗓️ *Días entrenados:*${fechas}\n\n💪 *Cargas registradas:*${cargas||'\n• Sin cargas aún'}\n\n📝 *Feedback:*${fbs||'\n• Sin feedback aún'}\n\n_Enviado desde la app de JP Entrenador_`;
+  const P=PROG[t?t[0]:4];
+  return `📊 *Reporte JP Entrenador${only?` · S${only.w} Día ${only.d+1}`:' · mes completo'}*\n👤 ${name} — ${ROUTINE}\n\n`+
+    `📅 *Progreso:* ${hechos} / 12 entrenamientos${t?` · le toca Semana ${t[0]} · Día ${t[1]+1} (principal ${P.sets}×${P.reps} al ${Math.round(P.pct*100)}%)`:' · mes completo ✅'}${sem}\n\n`+
+    `🗓️ *Días entrenados:* ${fechas}\n\n`+
+    `💪 *Evolución de cargas:*${evo||'\n• Sin cargas aún'}\n\n`+
+    `📝 *${only?'Entrenamiento de hoy':'Detalle de cada entrenamiento'}:*${det||'\n• Sin entrenamientos aún'}\n\n_Enviado desde la app de JP Entrenador_`;
 }
 const WA_ICON='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.3-.5-.5-1-1.1-1.3-1.7-.1-.2 0-.4.1-.5l.4-.4.3-.5v-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3c-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4l-.5-.3z"/></svg>';
 function renderReport(afterDay){
@@ -539,7 +571,7 @@ function renderReport(afterDay){
     <p id="waHint" style="font-size:1rem">Se abre WhatsApp con el mensaje listo. Solo tocá enviar.</p>
     <button class="cta ghost" id="skipRep">${afterDay?'Ahora no':'← Volver'}</button>`;
   const inp=$('nameIn'),a=$('waBtn');
-  const upd=()=>{const name=inp.value.trim()||'Alumno';a.href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(buildReport(name))}`;};
+  const upd=()=>{const name=inp.value.trim()||'Alumno';a.href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(buildReport(name,afterDay?{w:cur.w,d:cur.d}:null))}`;};
   inp.oninput=()=>{S.reportName=inp.value.trim();persist();upd();};upd();
   a.onclick=()=>{setTimeout(()=>doneScreen(nx),600);};
   $('skipRep').onclick=()=>afterDay?doneScreen(nx):renderHome();
@@ -589,6 +621,5 @@ window.addEventListener('pagehide',persist);
 
 applySize();renderHome();
 </script>
-
 </body>
 </html>
